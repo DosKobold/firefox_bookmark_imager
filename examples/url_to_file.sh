@@ -1,8 +1,10 @@
 #!/bin/bash
 
+# URL saving with text files
+# --------------------------
 # This bash script images the content of your given root folder on you local 
 # filesystem. For every folder there is a directory created. For every object
-# there is a text file created. All slashed are replaced with an underscore.
+# there is a text file created. All slashes are replaced with a underscores.
 
 # Loop over each line
 while IFS= read -a oL ; do {
@@ -24,5 +26,5 @@ while IFS= read -a oL ; do {
         touch "$(echo $oL | tr / _)"
     fi
 };
-done < <(./bin/main places.sqlite Root_Folder);
+done < <(./bin/main places.sqlite Some_Folder);
 unset oL;
