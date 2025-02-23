@@ -1,4 +1,4 @@
-# firefox-bookmark-imager
+# firefox_bookmark_imager
 
 This program images the content of a root folder in the firefox bookmarks onto plain text. The data is received from the "places.sqlite" database. The output of stdout is predestined for usage in a shell pipe. It is completely written in Ada.
 
