@@ -1,0 +1,10 @@
+| TABLE  | moz_bookmarks | moz_bookmark || Table with bookmark data |
+| id     | INTEGER       | PK           ||                          |
+| type   | INTEGER       |              ||                          |
+| fk     | INTEGER       | NULL         ||                          |
+| parent | INTEGER       |              ||                          |
+| title  | TEXT          |              ||                          |
+
+| TABLE  | moz_places    | moz_place    || Table with general data  |
+| id     | INTEGER       | PK           ||                          |
+| url    | INTEGER       |              ||                          |
