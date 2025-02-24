@@ -2,7 +2,7 @@ with GNATCOLL.SQL.Exec; use GNATCOLL.SQL.Exec;
 
 package Imaging is
 
-   procedure Initialize (Database : String)
+   procedure Initialize (Database : String; Doubles : Boolean := True)
    with Pre => Database'Length > 0, Post => Is_Initialized;
 
    procedure Image (Root_Folder_Title : String)
@@ -19,8 +19,9 @@ package Imaging is
 
 private
 
-   Db_Conn  : Database_Connection;
-   Db_Descr : Database_Description;
+   Db_Conn       : Database_Connection;
+   Db_Descr      : Database_Description;
+   Allow_Doubles : Boolean;
 
    function Is_Initialized return Boolean
    is (Db_Conn /= null);

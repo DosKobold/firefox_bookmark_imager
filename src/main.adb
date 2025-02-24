@@ -13,6 +13,11 @@ begin
       "help",
       'h',
       Usage => "Display this help text");
+   Arg_Parser.Add_Option
+     (Make_Boolean_Option (True),
+      "doubles",
+      'd',
+      Usage => "Disable doubles in the folders");
    Arg_Parser.Append_Positional (Make_String_Option, "DATABASE");
    Arg_Parser.Append_Positional (Make_String_Option, "ROOTFOLDER");
    Arg_Parser.Parse_Command_Line;
@@ -34,7 +39,7 @@ begin
       Panic ("Missing required argument(s). Use ""-h"" for help");
    end if;
 
-   Imaging.Initialize (Arg_Parser.String_Value ("DATABASE"));
+   Imaging.Initialize (Arg_Parser.String_Value ("DATABASE"), Arg_Parser.Boolean_Value ("doubles"));
    begin
       Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
    exception
