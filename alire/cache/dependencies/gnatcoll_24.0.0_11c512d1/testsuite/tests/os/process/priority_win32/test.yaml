@@ -1,0 +1,4 @@
+title: GNATCOLL.OS.Process Priority Tests (High Level API)
+control:
+    - ["SKIP", "'windows' not in env.target.os.name", "Win32 only test"]
+data: ["test_data/*.py"]

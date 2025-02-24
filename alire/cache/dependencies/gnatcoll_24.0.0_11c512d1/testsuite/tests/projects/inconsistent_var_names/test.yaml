@@ -1,0 +1,9 @@
+description: >
+  When two scenario variable have inconsistent set
+  of possible values and same controlling external
+  reference is a nested one the proper name of the
+  nested external must be reported.
+data:
+    - "p.gpr"
+control:
+    - [SKIP, "env.is_cross", "Libutil missing from cross-linux sysroots, see T616-039"]

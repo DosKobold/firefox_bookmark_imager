@@ -1,0 +1,10 @@
+20250223150351
+-c
+-x
+ada
+-gnatA
+-gnatwua
+-gnaty
+-gnatQ
+-O2
+-gnatn

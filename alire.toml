@@ -9,3 +9,5 @@ maintainers-logins = ["DosKobold"]
 executables = ["firefox_bookmark_imager"]
 [[depends-on]]
 gnatcoll_sqlite = "^24.0.0"
+[[depends-on]]
+parse_args = "~0.9.0"

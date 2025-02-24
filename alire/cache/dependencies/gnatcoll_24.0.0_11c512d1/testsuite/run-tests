@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+from drivers import make_gnatcoll, TESTSUITE_ROOT_DIR
+from drivers.basic import BasicTestDriver
+from drivers.build_and_run import BuildAndRunDriver
+from drivers.build_run_diff import BuildRunDiffDriver
+from drivers.json_validation import JSONValidationDriver
+from drivers.data_validation import DataValidationDriver
+from drivers.gnatcov import list_to_file, produce_report
+from e3.testsuite import Testsuite
+from e3.fs import mkdir, ls, find, rm
+from e3.os.process import Run
+import re
+import sys
+import os
+import logging
+
+
+class MyTestsuite(Testsuite):
+    enable_cross_support = True
+    tests_subdir = 'tests'
+    test_driver_map = {
+        'json_validation': JSONValidationDriver,
+        'data_validation': DataValidationDriver,
+        'default': BasicTestDriver,
+        'build_and_run': BuildAndRunDriver,
+        'build_run_diff': BuildRunDiffDriver,
+    }
+
+    def add_options(self, parser):
+        parser.add_argument(
+            '--gnatcov',
+            help="compute code coverage of GNATcoll with GNATcoverage." +
+            " Not compatible with the --recompile option." +
+            " If both are specified, only --recompile is used",
+            default=False,
+            action="store_true")
+        parser.add_argument(
+            '--valgrind',
+            help="check memory usage with Valgrind (memcheck tool)",
+            action="store_true")
+        parser.add_argument(
+            '--recompile',
+            help="recompile debug version of gnatcoll for testing." +
+            " Not compatible with the --gnatcov option." +
+            " If both are specified, only --recompile is used.",
+            default=False,
+            action="store_true")
+
+    def set_up(self):
+        self.env.gnatcov = self.main.args.gnatcov
+        self.env.valgrind = self.main.args.valgrind
+
+        # Reject incompatible options
+        incompatible = [name for name in ('gnatcov', 'valgrind')
+                        if getattr(self.env, name)]
+        if len(incompatible) > 1:
+            raise RuntimeError('The following options are incompatible: {}'
+                               .format(' '.join(incompatible)))
+
+        self.env.gnatcoll_gpr_dir = None
+        if self.env.gnatcov:
+            if self.main.args.recompile:
+                print("WARNING: --gnatcov option is not compatible with the" +
+                      " --recompile option. --gnatcov is ignored.")
+                self.env.gnatcov = False
+            else:
+                self.env.gnatcov_traces = os.path.join(
+                    TESTSUITE_ROOT_DIR, "gnatcov", "traces")
+                rm(self.env.gnatcov_traces, recursive=True)
+                mkdir(self.env.gnatcov_traces)
+
+        if self.main.args.recompile:
+            work_dir = os.path.join(TESTSUITE_ROOT_DIR, 'debug')
+            gpr_dir, _, _ = make_gnatcoll(work_dir, debug=True)
+            self.env.gnatcoll_debug_gpr_dir = gpr_dir
+
+    def tear_down(self):
+        wd = TESTSUITE_ROOT_DIR
+
+        # If requested, produce coverage reports
+        if self.env.gnatcov:
+            produce_report(self, self.output_dir)
+        super(MyTestsuite, self).tear_down()
+
+    @property
+    def default_driver(self):
+        return 'default'
+
+
+if __name__ == '__main__':
+    # Export location of Python used to run the testsuite. Some tests need
+    # to easily locate it.
+    os.environ["PYTHON_EXEC_PATH"] = os.path.abspath(sys.executable)
+    suite = MyTestsuite(os.path.dirname(__file__))
+    sys.exit(suite.testsuite_main())

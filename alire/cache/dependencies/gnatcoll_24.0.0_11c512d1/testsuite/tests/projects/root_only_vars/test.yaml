@@ -1,0 +1,8 @@
+description: >
+  Properly return the variables from root project
+  only and not disturb the globally computed variables.
+data:
+    - "a.gpr"
+    - "b.gpr"
+control:
+    - [SKIP, "env.is_cross", "Libutil missing from cross-linux sysroots, see T616-039"]

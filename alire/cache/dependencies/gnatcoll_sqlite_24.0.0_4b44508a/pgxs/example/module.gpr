@@ -1,0 +1,33 @@
+
+library project Module is
+
+   IncludeDir_Server :=
+     external ("PG_CONFIG_INCLUDEDIR_SERVER", "/usr/include/pgsql/server");
+   --  A Path to server extensions header files reported by
+   --
+   --  $ pg_config --includedir-server
+
+   for Languages use ("C", "Ada");
+   for Object_Dir use "../.objs/module";
+   for Source_Dirs use (".", "../source", "../testsuite");
+
+   for Library_Name use "adamodule";
+   for Library_Kind use "relocatable";
+   for Library_Dir use "../.libs";
+   for Library_Options use ("-Wl,--version-script=../../source/pgxs.sym");
+   for Library_Interface use
+     ("Sample",
+      "PGXS",
+      "PGXS.ABI",
+      "PGXS.Call_Info",
+      "PGXS.Datums",
+      "PGXS.Generic_Bytea",
+      "PGXS.Types",
+      "PGXS.Varlen");
+
+   package Compiler is
+      for Switches ("Ada") use ("-g", "-fPIC");
+      for Switches ("C") use ("-g", "-fPIC", "-I" & IncludeDir_Server);
+   end Compiler;
+
+end Module;
