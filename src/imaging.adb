@@ -1,9 +1,9 @@
-with Ada.Text_IO;       use Ada.Text_IO;
+with Ada.Text_IO;           use Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with GNATCOLL.SQL;      use GNATCOLL.SQL;
+with GNATCOLL.SQL;          use GNATCOLL.SQL;
 with GNATCOLL.SQL.Sqlite;
-with Database;          use Database;
-with Error_Handling;    use Error_Handling;
+with Database;              use Database;
+with Error_Handling;        use Error_Handling;
 
 package body Imaging is
 
@@ -14,8 +14,8 @@ package body Imaging is
    end Initialize;
 
    procedure Image (Root_Folder_Title : String) is
-      Result  : Forward_Cursor;
-      Query   : constant SQL_Query :=
+      Result         : Forward_Cursor;
+      Query          : constant SQL_Query :=
         SQL_Select
           (Fields => Moz_Bookmarks.Id,
            From   => Moz_Bookmarks,
@@ -44,12 +44,12 @@ package body Imaging is
    end Image;
 
    procedure Image (Root_Folder_Id : Natural) is
-      Result  : Forward_Cursor;
-      Query   : constant SQL_Query :=
-         SQL_Select
-            (Fields => Moz_Bookmarks.Title,
-            From   => Moz_Bookmarks,
-            Where  => Moz_Bookmarks.Id = Root_Folder_Id);
+      Result            : Forward_Cursor;
+      Query             : constant SQL_Query :=
+        SQL_Select
+          (Fields => Moz_Bookmarks.Title,
+           From   => Moz_Bookmarks,
+           Where  => Moz_Bookmarks.Id = Root_Folder_Id);
       Root_Folder_Title : Unbounded_String;
    begin
       Result.Fetch (Db_Conn, Query);
