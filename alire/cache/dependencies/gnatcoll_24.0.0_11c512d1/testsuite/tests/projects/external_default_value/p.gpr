@@ -1,4 +1,0 @@
-with "q.gpr";
-project P is
-
-end P;

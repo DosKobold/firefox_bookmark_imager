@@ -1,3 +1,0 @@
-abstract project Options is
-  for Target use "powerpc-doesntexist";
-end Options;

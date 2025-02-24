@@ -1,7 +1,0 @@
-description: >
-  Ignore index case sensitivity when querying attributes
-  whit index set to a language of the project.
-data:
-    - "p.gpr"
-control:
-    - [SKIP, "env.is_cross", "Libutil missing from cross-linux sysroots, see T616-039"]

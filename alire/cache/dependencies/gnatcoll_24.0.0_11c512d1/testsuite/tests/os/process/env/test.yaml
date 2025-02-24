@@ -1,4 +1,0 @@
-title: GNATCOLL.OS.Process Env Tests (High Level API)
-data: ["test_data/*.py"]
-control:
-  - [SKIP, "env.is_cross", "Test uses python which is not available on cross targets"]

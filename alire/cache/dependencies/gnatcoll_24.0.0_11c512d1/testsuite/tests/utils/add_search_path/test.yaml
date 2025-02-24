@@ -1,3 +1,0 @@
-title: GNATCOLL.Utils.Add_Search_Path
-control:
-    - [XFAIL, "env.valgrind", "Known memory leak: see S912-005"]

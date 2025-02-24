@@ -1,2 +1,0 @@
-project P extends "q/q.gpr" is
-end P;

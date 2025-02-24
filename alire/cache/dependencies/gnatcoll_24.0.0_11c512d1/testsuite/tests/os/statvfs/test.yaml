@@ -1,3 +1,0 @@
-description: Test for GNATCOLL.OS.Libc.Statvfs
-control:
-    - ["SKIP", "env.build.os.name == 'windows'", "Unix only test"]

@@ -1,4 +1,0 @@
-with "gnatcoll";
-project Base64_Coder is
-   for Main use ("base64_coder.adb");
-end Base64_Coder;

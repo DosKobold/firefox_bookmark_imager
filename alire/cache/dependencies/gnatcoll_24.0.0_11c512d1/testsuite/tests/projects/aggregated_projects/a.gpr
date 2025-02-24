@@ -1,5 +1,0 @@
-with "c.gpr";
-project A is
-   for Languages use ("Ada");
-   for Source_Files use ("src_a.ads");
-end A;

@@ -1,3 +1,0 @@
-docs/conf.py                            no-precommit-check
-sqlite/amalgamation/*                  no-precommit-check
-testsuite/**                            no-precommit-check

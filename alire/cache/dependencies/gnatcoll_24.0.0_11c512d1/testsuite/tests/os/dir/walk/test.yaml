@@ -1,3 +1,0 @@
-description: Test for GNATCOLL.OS.Dir.Walk
-control:
-    - [SKIP, "env.is_cross", "Test uses python which is not available on cross targets"]

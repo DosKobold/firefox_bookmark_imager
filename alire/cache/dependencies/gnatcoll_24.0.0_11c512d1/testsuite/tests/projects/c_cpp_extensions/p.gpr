@@ -1,4 +1,0 @@
-project p is
-   for Languages use ("ada", "c", "c++");
-end p;
-

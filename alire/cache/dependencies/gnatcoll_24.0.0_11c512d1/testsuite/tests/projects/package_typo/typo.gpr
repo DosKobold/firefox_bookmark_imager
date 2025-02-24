@@ -1,7 +1,0 @@
-with "common.gpr";
-project Typo is
-   package Link is
-      for Default_Switches use Common.Link'Default_Switches;
-   end Link;
-end Typo;
-

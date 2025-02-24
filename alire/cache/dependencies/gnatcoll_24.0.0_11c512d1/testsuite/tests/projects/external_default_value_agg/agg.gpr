@@ -1,3 +1,0 @@
-aggregate project agg is
-   for Project_Files use ("p.gpr");
-end agg;

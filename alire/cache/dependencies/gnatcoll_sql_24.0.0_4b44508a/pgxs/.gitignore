@@ -1,5 +1,0 @@
-.objs
-.libs
-example/module.sql
-testsuite/module.sql
-test_pgxs.output
