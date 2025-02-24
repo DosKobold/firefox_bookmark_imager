@@ -7,12 +7,12 @@ This program images the content of a root folder in the firefox bookmarks onto p
 The software is still in development and will get more features.  \
 \
 TODO:
-- Implement a better CLI interface
 - Flag for disallowing doubles in the same folder (folders and links) -> panic
+- Flag for recursion depth
+- Flag for checking syntax (no "\n" in names or "./" at the beginning of objects)
 - Flag for choosing the output value (e.g. "title" instead of "url", or even lists: "id:title:url")
 - Flag for pre marking elements, especially folders (e.g. "*" instead of "./")
 - Flag for post marking elements, especially folders (e.g. "}" instead of "\n")
-- Flag for checking syntax (no "\n" in names or "./" at the beginning of objects)
 - Implement the conversion with a JSON file as input (and HTML?)
 
 ## Building
