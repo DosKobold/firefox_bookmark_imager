@@ -1,8 +1,8 @@
-with Imaging;
 with Ada.Command_Line; use Ada.Command_Line;
-with Error_Handling;   use Error_Handling;
-with Parse_Args;       use Parse_Args;
 with Ada.Text_IO;      use Ada.Text_IO;
+with Error_Handling;   use Error_Handling;
+with Imaging;
+with Parse_Args;       use Parse_Args;
 
 procedure Main is
    Folder_Id  : Natural;
@@ -29,8 +29,8 @@ begin
 
    if Arg_Parser.Boolean_Value ("help") then
       Arg_Parser.Usage;
-      Set_Exit_Status (0);
-      return;
+
+      goto Successfull_End_Of_Program;
    end if;
 
    if Arg_Parser.String_Value ("DATABASE")'Length = 0
@@ -39,7 +39,9 @@ begin
       Panic ("Missing required argument(s). Use ""-h"" for help");
    end if;
 
-   Imaging.Initialize (Arg_Parser.String_Value ("DATABASE"), Arg_Parser.Boolean_Value ("doubles"));
+   Imaging.Initialize
+     (Arg_Parser.String_Value ("DATABASE"),
+      Arg_Parser.Boolean_Value ("doubles"));
    begin
       Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
    exception
@@ -47,11 +49,12 @@ begin
          Imaging.Image (Arg_Parser.String_Value ("ROOTFOLDER"));
          Imaging.Clean_Up;
 
-         Set_Exit_Status (0);
-         return;
+         goto Successfull_End_Of_Program;
    end;
    Imaging.Image (Folder_Id);
    Imaging.Clean_Up;
+
+   <<Successfull_End_Of_Program>>
 
    Set_Exit_Status (0);
 

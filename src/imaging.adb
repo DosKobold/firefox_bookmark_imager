@@ -27,23 +27,27 @@ package body Imaging is
    begin
       Result.Fetch (Db_Conn, Query);
 
-      if Success (Db_Conn) then
-         while Has_Row (Result) loop
-            Root_Folder_Id := Integer_Value (Result, 0);
-            Next (Result);
-         end loop;
-         if Processed_Rows (Result) = 1 then
+      if not Db_Conn.Success then
+         Panic ("Database query failed");
+      end if;
+
+      while Result.Has_Row loop
+         Root_Folder_Id := Result.Integer_Value (0);
+         Result.Next;
+      end loop;
+
+      case Result.Processed_Rows is
+         when 0 =>
+            Panic ("Given folder not found");
+
+         when 1 =>
             Put_Line ("./" & Root_Folder_Title);
             Recursive_Image (Root_Folder_Id);
             New_Line;
-         elsif Processed_Rows (Result) > 1 then
+
+         when others =>
             Panic ("Given name of root folder is not unique");
-         elsif Processed_Rows (Result) = 0 then
-            Panic ("Given folder not found");
-         end if;
-      else
-         Panic ("Database query failed");
-      end if;
+      end case;
    end Image;
 
    procedure Image (Root_Folder_Id : Natural) is
@@ -57,26 +61,32 @@ package body Imaging is
    begin
       Result.Fetch (Db_Conn, Query);
 
-      if Success (Db_Conn) then
-         while Has_Row (Result) loop
-            Root_Folder_Title := To_Unbounded_String (Value (Result, 0));
-            Next (Result);
-         end loop;
-         if Processed_Rows (Result) = 1 then
+      if not Db_Conn.Success then
+         Panic ("Database query failed");
+      end if;
+
+      while Result.Has_Row loop
+         Root_Folder_Title := To_Unbounded_String (Result.Value (0));
+         Result.Next;
+      end loop;
+
+      case Result.Processed_Rows is
+         when 0 =>
+            Panic ("Given folder not found");
+
+         when 1 =>
             Put_Line ("./" & To_String (Root_Folder_Title));
             Recursive_Image (Root_Folder_Id);
             New_Line;
-         elsif Processed_Rows (Result) = 0 then
-            Panic ("Given folder not found");
-         end if;
-      else
-         Panic ("Database query failed");
-      end if;
+
+         when others =>
+            Panic ("Non unique id given");
+      end case;
    end Image;
 
    procedure Recursive_Image (Root_Id : Natural) is
-      Result  : Forward_Cursor;
-      Query   : constant SQL_Query :=
+      Result : Forward_Cursor;
+      Query  : constant SQL_Query :=
         SQL_Select
           (Fields =>
              Moz_Bookmarks.Id
@@ -88,45 +98,58 @@ package body Imaging is
              Left_Join
                (Moz_Bookmarks, Moz_Places, Moz_Bookmarks.Fk = Moz_Places.Id),
            Where  => Moz_Bookmarks.Parent = Root_Id);
+
       package String_Sets is new
         Ada.Containers.Ordered_Sets (Element_Type => Unbounded_String);
+
       Objects : String_Sets.Set;
       Folders : String_Sets.Set;
+
+      type Element_Type is (Type_Object, Type_Folder);
+      for Element_Type use (Type_Object => 1, Type_Folder => 2);
    begin
       Result.Fetch (Db_Conn, Query);
 
-      if Success (Db_Conn) then
-         while Has_Row (Result) loop
-            if Integer_Value (Result, 1) = 1 then
+      if not Db_Conn.Success then
+         Panic ("Database query failed");
+      end if;
+
+      while Result.Has_Row loop
+         case Result.Integer_Value (1) is
+            when Type_Object'Enum_Rep =>
                if not Allow_Doubles then
                   begin
-                     Objects.Insert (To_Unbounded_String (Value (Result, 4)));
+                     Objects.Insert (To_Unbounded_String (Result.Value (4)));
                   exception
                      when Constraint_Error =>
                         Panic
                           ("Some folder contains two objects with the same name");
                   end;
                end if;
-               Put_Line (Value (Result, 4));
-            elsif Integer_Value (Result, 1) = 2 then
+
+               Put_Line (Result.Value (4));
+
+            when Type_Folder'Enum_Rep =>
                if not Allow_Doubles then
                   begin
-                     Folders.Insert (To_Unbounded_String (Value (Result, 3)));
+                     Folders.Insert (To_Unbounded_String (Result.Value (3)));
                   exception
                      when Constraint_Error =>
                         Panic
                           ("Some folder contains two folders with the same name");
                   end;
                end if;
-               Put_Line ("./" & Value (Result, 3));
-               Recursive_Image (Integer_Value (Result, 0));
+
+               Put_Line ("./" & Result.Value (3));
+               Recursive_Image (Result.Integer_Value (0));
                New_Line;
-            end if;
-            Next (Result);
-         end loop;
-      else
-         Panic ("Database query failed");
-      end if;
+
+            when others =>
+               Panic ("Unknown type of element");
+         end case;
+
+         Result.Next;
+      end loop;
    end Recursive_Image;
 
    procedure Clean_Up is
