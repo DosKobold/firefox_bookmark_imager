@@ -16,6 +16,11 @@ procedure Main is
          'h',
          Usage => "Display this help text");
       Arg_Parser.Add_Option
+        (Make_Boolean_Option (False),
+         "id-as-root",
+         'i',
+         Usage => "Use the id for the root folder");
+      Arg_Parser.Add_Option
         (Make_Boolean_Option (True),
          "doubles",
          'd',
@@ -75,16 +80,19 @@ begin
       Arg_Parser.String_Value ("object-pre"),
       Arg_Parser.String_Value ("object-post"));
 
-   begin
-      Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
-   exception
-      when Constraint_Error =>
-         Imaging.Image (Arg_Parser.String_Value ("ROOTFOLDER"));
-         Imaging.Clean_Up;
-         goto Successfull_End_Of_Program;
-   end;
+   if Arg_Parser.Boolean_Value ("id-as-root") then
+      begin
+         Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
+      exception
+         when Constraint_Error =>
+            Panic ("Can not parse the id of the root folder");
+      end;
 
-   Imaging.Image (Folder_Id);
+      Imaging.Image (Folder_Id);
+   else
+      Imaging.Image (Arg_Parser.String_Value ("ROOTFOLDER"));
+   end if;
+
    Imaging.Clean_Up;
 
    <<Successfull_End_Of_Program>>
