@@ -9,11 +9,14 @@ with GNATCOLL.SQL.Sqlite;
 
 package body Imaging is
 
-   procedure Initialize (Database : String; Doubles : Boolean := True) is
+   procedure Initialize
+     (Database : String; Doubles : Boolean := True; Tree_Depth : Positive)
+   is
    begin
       Db_Descr := GNATCOLL.SQL.Sqlite.Setup (Database);
       Db_Conn := Db_Descr.Build_Connection;
       Allow_Doubles := Doubles;
+      Recursion_Depth := Tree_Depth;
    end Initialize;
 
    procedure Image (Root_Folder_Title : String) is
@@ -42,7 +45,7 @@ package body Imaging is
 
          when 1 =>
             Put_Line ("./" & Root_Folder_Title);
-            Recursive_Image (Root_Folder_Id);
+            Recursive_Image (Root_Folder_Id, 1);
             New_Line;
 
          when others =>
@@ -76,7 +79,7 @@ package body Imaging is
 
          when 1 =>
             Put_Line ("./" & To_String (Root_Folder_Title));
-            Recursive_Image (Root_Folder_Id);
+            Recursive_Image (Root_Folder_Id, 1);
             New_Line;
 
          when others =>
@@ -84,7 +87,7 @@ package body Imaging is
       end case;
    end Image;
 
-   procedure Recursive_Image (Root_Id : Natural) is
+   procedure Recursive_Image (Root_Id : Natural; Current_Depth : Positive) is
       Result : Forward_Cursor;
       Query  : constant SQL_Query :=
         SQL_Select
@@ -108,6 +111,10 @@ package body Imaging is
       type Element_Type is (Type_Object, Type_Folder);
       for Element_Type use (Type_Object => 1, Type_Folder => 2);
    begin
+      if Current_Depth > Recursion_Depth then
+         Panic ("Maximum tree depth reached. Changeable with ""-t""");
+      end if;
+
       Result.Fetch (Db_Conn, Query);
 
       if not Db_Conn.Success then
@@ -141,7 +148,7 @@ package body Imaging is
                end if;
 
                Put_Line ("./" & Result.Value (3));
-               Recursive_Image (Result.Integer_Value (0));
+               Recursive_Image (Result.Integer_Value (0), Current_Depth + 1);
                New_Line;
 
             when others =>

@@ -18,6 +18,11 @@ begin
       "doubles",
       'd',
       Usage => "Disable doubles in the folders");
+   Arg_Parser.Add_Option
+     (Make_Positive_Option (50),
+      "tree-depth",
+      't',
+      Usage => "Change the tree depth for recursive algorithm. Default: 50");
    Arg_Parser.Append_Positional (Make_String_Option, "DATABASE");
    Arg_Parser.Append_Positional (Make_String_Option, "ROOTFOLDER");
    Arg_Parser.Parse_Command_Line;
@@ -41,7 +46,8 @@ begin
 
    Imaging.Initialize
      (Arg_Parser.String_Value ("DATABASE"),
-      Arg_Parser.Boolean_Value ("doubles"));
+      Arg_Parser.Boolean_Value ("doubles"),
+      Positive (Arg_Parser.Integer_Value ("tree-depth")));
    begin
       Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
    exception
