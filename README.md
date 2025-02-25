@@ -7,11 +7,13 @@ This program images the content of a root folder in the firefox bookmarks onto p
 The software is still in development and will get more features.  \
 \
 TODO:
-- Flag for checking syntax (no "\n" in names or "./" at the beginning of objects)
+- Flag for checking syntax (no pre or post marking elements in strings)
 - Flag for choosing the output value (e.g. "title" instead of "url", or even lists: "id:title:url")
-- Flag for pre marking elements, especially folders (e.g. "*" instead of "./")
-- Flag for post marking elements, especially folders (e.g. "}" instead of "\n")
-- Implement the conversion with a JSON file as input (and HTML?)
+
+## Possible future features
+- Parsing Firefox JSON
+- Parsing Firefox HTML
+- Parsing for other Browsers
 
 ## Building
 

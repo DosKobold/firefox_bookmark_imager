@@ -1,22 +1,30 @@
-with Ada.Containers;        use Ada.Containers;
+with Ada.Containers; use Ada.Containers;
 with Ada.Containers.Ordered_Sets;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Text_IO;           use Ada.Text_IO;
-with Database;              use Database;
-with Error_Handling;        use Error_Handling;
-with GNATCOLL.SQL;          use GNATCOLL.SQL;
+with Ada.Text_IO;    use Ada.Text_IO;
+with Database;       use Database;
+with Error_Handling; use Error_Handling;
+with GNATCOLL.SQL;   use GNATCOLL.SQL;
 with GNATCOLL.SQL.Sqlite;
 
 package body Imaging is
 
    procedure Initialize
-     (Database : String; Doubles : Boolean := True; Tree_Depth : Positive)
-   is
+     (Database    : String;
+      Doubles     : Boolean;
+      Tree_Depth  : Positive;
+      Folder_Pre  : String;
+      Folder_Post : String;
+      Object_Pre  : String;
+      Object_Post : String) is
    begin
       Db_Descr := GNATCOLL.SQL.Sqlite.Setup (Database);
       Db_Conn := Db_Descr.Build_Connection;
       Allow_Doubles := Doubles;
       Recursion_Depth := Tree_Depth;
+      Marker_Folder_Pre := To_Unbounded_String (Folder_Pre);
+      Marker_Folder_Post := To_Unbounded_String (Folder_Post);
+      Marker_Object_Pre := To_Unbounded_String (Object_Pre);
+      Marker_Object_Post := To_Unbounded_String (Object_Post);
    end Initialize;
 
    procedure Image (Root_Folder_Title : String) is
@@ -44,9 +52,9 @@ package body Imaging is
             Panic ("Given folder not found");
 
          when 1 =>
-            Put_Line ("./" & Root_Folder_Title);
+            Put_Line (To_String (Marker_Folder_Pre) & Root_Folder_Title);
             Recursive_Image (Root_Folder_Id, 1);
-            New_Line;
+            Put_Line (To_String (Marker_Folder_Post));
 
          when others =>
             Panic ("Given name of root folder is not unique");
@@ -78,9 +86,10 @@ package body Imaging is
             Panic ("Given folder not found");
 
          when 1 =>
-            Put_Line ("./" & To_String (Root_Folder_Title));
+            Put_Line
+              (To_String (Marker_Folder_Pre) & To_String (Root_Folder_Title));
             Recursive_Image (Root_Folder_Id, 1);
-            New_Line;
+            Put_Line (To_String (Marker_Folder_Post));
 
          when others =>
             Panic ("Non unique id given");
@@ -134,7 +143,10 @@ package body Imaging is
                   end;
                end if;
 
-               Put_Line (Result.Value (4));
+               Put_Line
+                 (To_String (Marker_Object_Pre)
+                  & Result.Value (4)
+                  & To_String (Marker_Object_Post));
 
             when Type_Folder'Enum_Rep =>
                if not Allow_Doubles then
@@ -147,9 +159,9 @@ package body Imaging is
                   end;
                end if;
 
-               Put_Line ("./" & Result.Value (3));
+               Put_Line (To_String (Marker_Folder_Pre) & Result.Value (3));
                Recursive_Image (Result.Integer_Value (0), Current_Depth + 1);
-               New_Line;
+               Put_Line (To_String (Marker_Folder_Post));
 
             when others =>
                Panic ("Unknown type of element");
