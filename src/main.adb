@@ -47,6 +47,8 @@ procedure Main is
       Arg_Parser.Parse_Command_Line;
    end Initialize_Arg_Parser;
 begin
+   Initialize_Arg_Parser;
+
    if not Arg_Parser.Parse_Success then
       Put_Line (Arg_Parser.Parse_Message);
       Panic ("Parsing of command line arguments failed");
