@@ -39,7 +39,7 @@ package body Imaging is
       Result.Fetch (Db_Conn, Query);
 
       if not Db_Conn.Success then
-         Panic ("Database query failed");
+         Panic (Error_Sql_Query, Db_Conn.Error);
       end if;
 
       while Result.Has_Row loop
@@ -49,7 +49,7 @@ package body Imaging is
 
       case Result.Processed_Rows is
          when 0 =>
-            Panic ("Given folder not found");
+            Panic (Error_Folder_Not_Found);
 
          when 1 =>
             Put_Line (To_String (Marker_Folder_Pre) & Root_Folder_Title);
@@ -57,7 +57,7 @@ package body Imaging is
             Put_Line (To_String (Marker_Folder_Post));
 
          when others =>
-            Panic ("Given name of root folder is not unique");
+            Panic (Error_Folder_Not_Unique);
       end case;
    end Image;
 
@@ -73,7 +73,7 @@ package body Imaging is
       Result.Fetch (Db_Conn, Query);
 
       if not Db_Conn.Success then
-         Panic ("Database query failed");
+         Panic (Error_Sql_Query, Db_Conn.Error);
       end if;
 
       while Result.Has_Row loop
@@ -83,7 +83,7 @@ package body Imaging is
 
       case Result.Processed_Rows is
          when 0 =>
-            Panic ("Given folder not found");
+            Panic (Error_Folder_Not_Found);
 
          when 1 =>
             Put_Line
@@ -92,7 +92,7 @@ package body Imaging is
             Put_Line (To_String (Marker_Folder_Post));
 
          when others =>
-            Panic ("Non unique id given");
+            Panic (Error_Folder_Not_Unique);
       end case;
    end Image;
 
@@ -121,13 +121,14 @@ package body Imaging is
       for Element_Type use (Type_Object => 1, Type_Folder => 2);
    begin
       if Current_Depth > Recursion_Depth then
-         Panic ("Maximum tree depth reached. Changeable with ""-t""");
+         Panic
+           (Error_Max_Tree_Depth, "Current value: " & Recursion_Depth'Image);
       end if;
 
       Result.Fetch (Db_Conn, Query);
 
       if not Db_Conn.Success then
-         Panic ("Database query failed");
+         Panic (Error_Sql_Query, Db_Conn.Error);
       end if;
 
       while Result.Has_Row loop
@@ -139,7 +140,8 @@ package body Imaging is
                   exception
                      when Constraint_Error =>
                         Panic
-                          ("Some folder contains two objects with the same name");
+                          (Error_Doubled_Elements,
+                           "Value: " & Result.Value (4));
                   end;
                end if;
 
@@ -155,7 +157,8 @@ package body Imaging is
                   exception
                      when Constraint_Error =>
                         Panic
-                          ("Some folder contains two folders with the same name");
+                          (Error_Doubled_Elements,
+                           "Value: " & Result.Value (3));
                   end;
                end if;
 
@@ -164,7 +167,9 @@ package body Imaging is
                Put_Line (To_String (Marker_Folder_Post));
 
             when others =>
-               Panic ("Unknown type of element");
+               Panic
+                 (Error_Unknown_Type,
+                  "Type: " & Result.Integer_Value (1)'Image);
          end case;
 
          Result.Next;

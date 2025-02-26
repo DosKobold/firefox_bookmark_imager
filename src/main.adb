@@ -55,8 +55,7 @@ begin
    Initialize_Arg_Parser;
 
    if not Arg_Parser.Parse_Success then
-      Put_Line (Arg_Parser.Parse_Message);
-      Panic ("Parsing of command line arguments failed");
+      Panic (Error_Parsing_Arguments, Arg_Parser.Parse_Message);
    end if;
 
    if Arg_Parser.Boolean_Value ("help") then
@@ -68,7 +67,7 @@ begin
    if Arg_Parser.String_Value ("DATABASE")'Length = 0
      or else Arg_Parser.String_Value ("ROOTFOLDER")'Length = 0
    then
-      Panic ("Missing required argument(s). Use ""-h"" for help");
+      Panic (Error_Missing_Arguments);
    end if;
 
    Imaging.Initialize
@@ -85,7 +84,7 @@ begin
          Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
       exception
          when Constraint_Error =>
-            Panic ("Can not parse the id of the root folder");
+            Panic (Error_Parsing_Root_Id);
       end;
 
       Imaging.Image (Folder_Id);
