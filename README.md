@@ -4,15 +4,12 @@ This program images the content of a root folder in the firefox bookmarks onto p
 
 ## Current state
 
-The software is still in development and will get more features.  \
-\
+The software is still in development and will get more features.
+
 ### TODO:
 - Refactor the imaging package to a "class" => Put private variables into a type
 - Flag for checking syntax (no pre or post marking elements in strings)
 - Flag for choosing the output value (e.g. "title" instead of "url", or even lists: "id:title:url")
-
-### Known bugs:
-- Program creates an empty file if there is no database
 
 ## Possible future features
 - Parsing Firefox JSON

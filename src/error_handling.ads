@@ -10,6 +10,7 @@ package Error_Handling is
    Error_Parsing_Arguments : constant Error;
    Error_Missing_Arguments : constant Error;
    Error_Parsing_Root_Id   : constant Error;
+   Error_File_Not_Found    : constant Error;
    Error_Sql_Query         : constant Error;
    Error_Folder_Not_Found  : constant Error;
    Error_Folder_Not_Unique : constant Error;
@@ -41,20 +42,22 @@ private
        (2,
         "Cannot parse the id of the root folder",
         "Is it a positve number?");
+   Error_File_Not_Found    : constant Error :=
+     New_Error (3, "File not found", "Wrong path?");
    Error_Sql_Query         : constant Error :=
-     New_Error (3, "Database query failed", "Wrong file name?");
+     New_Error (4, "Database query failed", "Is the given file a database?");
    Error_Folder_Not_Found  : constant Error :=
-     New_Error (4, "Given folder not found", "Wrong folder name?");
+     New_Error (5, "Given folder not found", "Wrong folder name?");
    Error_Folder_Not_Unique : constant Error :=
-     New_Error (4, "Given folder is not unique", "Wrong folder name?");
+     New_Error (5, "Given folder is not unique", "Wrong folder name?");
    Error_Max_Tree_Depth    : constant Error :=
      New_Error
-       (5,
+       (6,
         "Maximum tree depth in recursive algorithm reached",
         "Changeable with ""-t""");
    Error_Doubled_Elements  : constant Error :=
      New_Error
-       (6,
+       (7,
         "Some folder contains two elements with the same value",
         "Changeable with ""-d""");
    Error_Unknown_Type      : constant Error :=

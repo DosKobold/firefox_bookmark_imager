@@ -1,5 +1,5 @@
 with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Text_IO;      use Ada.Text_IO;
+with Ada.Directories;  use Ada.Directories;
 with Error_Handling;   use Error_Handling;
 with Imaging;
 with Parse_Args;       use Parse_Args;
@@ -68,6 +68,10 @@ begin
      or else Arg_Parser.String_Value ("ROOTFOLDER")'Length = 0
    then
       Panic (Error_Missing_Arguments);
+   end if;
+
+   if not Exists (Arg_Parser.String_Value ("DATABASE")) then
+      Panic (Error_File_Not_Found);
    end if;
 
    Imaging.Initialize
