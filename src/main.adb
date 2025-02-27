@@ -1,11 +1,11 @@
-with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Directories;  use Ada.Directories;
-with Error_Handling;   use Error_Handling;
-with Imaging;
-with Parse_Args;       use Parse_Args;
+with Ada.Command_Line;      use Ada.Command_Line;
+with Ada.Directories;       use Ada.Directories;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Error_Handling;        use Error_Handling;
+with Imager;
+with Parse_Args;            use Parse_Args;
 
 procedure Main is
-   Folder_Id  : Natural;
    Arg_Parser : Argument_Parser;
 
    procedure Initialize_Arg_Parser is
@@ -74,29 +74,33 @@ begin
       Panic (Error_File_Not_Found);
    end if;
 
-   Imaging.Initialize
-     (Arg_Parser.String_Value ("DATABASE"),
-      Arg_Parser.Boolean_Value ("doubles"),
-      Positive (Arg_Parser.Integer_Value ("tree-depth")),
-      Arg_Parser.String_Value ("folder-pre"),
-      Arg_Parser.String_Value ("folder-post"),
-      Arg_Parser.String_Value ("object-pre"),
-      Arg_Parser.String_Value ("object-post"));
+   Imager.Initialize
+     ((To_Unbounded_String (Arg_Parser.String_Value ("DATABASE")),
+       Arg_Parser.Boolean_Value ("doubles"),
+       Positive (Arg_Parser.Integer_Value ("tree-depth")),
+       To_Unbounded_String (Arg_Parser.String_Value ("folder-pre")),
+       To_Unbounded_String (Arg_Parser.String_Value ("folder-post")),
+       To_Unbounded_String (Arg_Parser.String_Value ("object-pre")),
+       To_Unbounded_String (Arg_Parser.String_Value ("object-post"))));
 
    if Arg_Parser.Boolean_Value ("id-as-root") then
+      declare
+         Folder_Id  : Natural;
       begin
-         Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
-      exception
-         when Constraint_Error =>
-            Panic (Error_Parsing_Root_Id);
-      end;
+         begin
+            Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
+         exception
+            when Constraint_Error =>
+               Panic (Error_Parsing_Root_Id);
+         end;
 
-      Imaging.Image (Folder_Id);
+         Imager.Image (Folder_Id);
+      end;
    else
-      Imaging.Image (Arg_Parser.String_Value ("ROOTFOLDER"));
+      Imager.Image (Arg_Parser.String_Value ("ROOTFOLDER"));
    end if;
 
-   Imaging.Clean_Up;
+   Imager.Clean_Up;
 
    <<Successfull_End_Of_Program>>
    Set_Exit_Status (0);
