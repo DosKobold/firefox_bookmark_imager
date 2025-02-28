@@ -60,7 +60,6 @@ begin
 
    if Arg_Parser.Boolean_Value ("help") then
       Arg_Parser.Usage;
-
       goto Successfull_End_Of_Program;
    end if;
 
@@ -85,10 +84,11 @@ begin
 
    if Arg_Parser.Boolean_Value ("id-as-root") then
       declare
-         Folder_Id  : Natural;
+         Folder_Id : Natural;
       begin
          begin
-            Folder_Id := Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
+            Folder_Id :=
+              Natural'Value (Arg_Parser.String_Value ("ROOTFOLDER"));
          exception
             when Constraint_Error =>
                Panic (Error_Parsing_Root_Id);

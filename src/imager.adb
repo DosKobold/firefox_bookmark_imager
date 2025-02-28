@@ -1,5 +1,3 @@
-with Ada.Containers; use Ada.Containers;
-with Ada.Containers.Ordered_Sets;
 with Ada.Text_IO;    use Ada.Text_IO;
 with Database;       use Database;
 with Error_Handling; use Error_Handling;
@@ -26,27 +24,15 @@ package body Imager is
    begin
       Result.Fetch (Db_Conn, Query);
 
-      if not Db_Conn.Success then
-         Panic (Error_Sql_Query, Db_Conn.Error);
-      end if;
+      Check_Query_Success;
 
       while Result.Has_Row loop
          Root_Folder_Id := Result.Integer_Value (0);
          Result.Next;
       end loop;
 
-      case Result.Processed_Rows is
-         when 0 =>
-            Panic (Error_Folder_Not_Found);
-
-         when 1 =>
-            Put_Line (To_String (Img_Descr.Folder_Pre) & Root_Folder_Title);
-            Recursive_Image (Root_Folder_Id, 1);
-            Put_Line (To_String (Img_Descr.Folder_Post));
-
-         when others =>
-            Panic (Error_Folder_Not_Unique);
-      end case;
+      Image_Root_Folder
+        (Result.Processed_Rows, Root_Folder_Id, Root_Folder_Title);
    end Image;
 
    procedure Image (Root_Folder_Id : Natural) is
@@ -60,30 +46,39 @@ package body Imager is
    begin
       Result.Fetch (Db_Conn, Query);
 
-      if not Db_Conn.Success then
-         Panic (Error_Sql_Query, Db_Conn.Error);
-      end if;
+      Check_Query_Success;
 
       while Result.Has_Row loop
          Root_Folder_Title := To_Unbounded_String (Result.Value (0));
          Result.Next;
       end loop;
 
-      case Result.Processed_Rows is
+      Image_Root_Folder
+        (Result.Processed_Rows, Root_Folder_Id, To_String (Root_Folder_Title));
+   end Image;
+
+   procedure Clean_Up is
+   begin
+      Free (Db_Conn);
+      Free (Db_Descr);
+   end Clean_Up;
+
+   ----------------------------------------------------------------------------
+
+   procedure Image_Root_Folder
+     (Found_Folders : Natural; Id : Natural; Title : String) is
+   begin
+      case Found_Folders is
          when 0 =>
             Panic (Error_Folder_Not_Found);
 
          when 1 =>
-            Put_Line
-              (To_String (Img_Descr.Folder_Pre)
-               & To_String (Root_Folder_Title));
-            Recursive_Image (Root_Folder_Id, 1);
-            Put_Line (To_String (Img_Descr.Folder_Post));
+            Print_Folder (Id, Title, 1);
 
          when others =>
             Panic (Error_Folder_Not_Unique);
       end case;
-   end Image;
+   end Image_Root_Folder;
 
    procedure Recursive_Image (Root_Id : Natural; Current_Depth : Positive) is
       Result : Forward_Cursor;
@@ -100,14 +95,8 @@ package body Imager is
                (Moz_Bookmarks, Moz_Places, Moz_Bookmarks.Fk = Moz_Places.Id),
            Where  => Moz_Bookmarks.Parent = Root_Id);
 
-      package String_Sets is new
-        Ada.Containers.Ordered_Sets (Element_Type => Unbounded_String);
-
       Objects : String_Sets.Set;
       Folders : String_Sets.Set;
-
-      type Element_Type is (Type_Object, Type_Folder);
-      for Element_Type use (Type_Object => 1, Type_Folder => 2);
    begin
       if Current_Depth > Img_Descr.Tree_Depth then
          Panic
@@ -117,44 +106,24 @@ package body Imager is
 
       Result.Fetch (Db_Conn, Query);
 
-      if not Db_Conn.Success then
-         Panic (Error_Sql_Query, Db_Conn.Error);
-      end if;
+      Check_Query_Success;
 
       while Result.Has_Row loop
          case Result.Integer_Value (1) is
-            when Type_Object'Enum_Rep =>
+            when Type_Object =>
                if not Img_Descr.Doubles then
-                  begin
-                     Objects.Insert (To_Unbounded_String (Result.Value (4)));
-                  exception
-                     when Constraint_Error =>
-                        Panic
-                          (Error_Doubled_Elements,
-                           "Value: " & Result.Value (4));
-                  end;
+                  Check_For_Doubles (Objects, Result.Value (4));
                end if;
 
-               Put_Line
-                 (To_String (Img_Descr.Object_Pre)
-                  & Result.Value (4)
-                  & To_String (Img_Descr.Object_Post));
+               Print_Object (Result.Value (4));
 
-            when Type_Folder'Enum_Rep =>
+            when Type_Folder =>
                if not Img_Descr.Doubles then
-                  begin
-                     Folders.Insert (To_Unbounded_String (Result.Value (3)));
-                  exception
-                     when Constraint_Error =>
-                        Panic
-                          (Error_Doubled_Elements,
-                           "Value: " & Result.Value (3));
-                  end;
+                  Check_For_Doubles (Folders, Result.Value (3));
                end if;
 
-               Put_Line (To_String (Img_Descr.Folder_Pre) & Result.Value (3));
-               Recursive_Image (Result.Integer_Value (0), Current_Depth + 1);
-               Put_Line (To_String (Img_Descr.Folder_Post));
+               Print_Folder
+                 (Result.Integer_Value (0), Result.Value (3), Current_Depth);
 
             when others =>
                Panic
@@ -166,10 +135,37 @@ package body Imager is
       end loop;
    end Recursive_Image;
 
-   procedure Clean_Up is
+   procedure Check_Query_Success is
    begin
-      Free (Db_Conn);
-      Free (Db_Descr);
-   end Clean_Up;
+      if not Db_Conn.Success then
+         Panic (Error_Sql_Query, Db_Conn.Error);
+      end if;
+   end Check_Query_Success;
+
+   procedure Check_For_Doubles
+     (Elements : in out String_Sets.Set; Content : String) is
+   begin
+      begin
+         Elements.Insert (To_Unbounded_String (Content));
+      exception
+         when Constraint_Error =>
+            Panic (Error_Doubled_Elements, "Value: " & Content);
+      end;
+   end Check_For_Doubles;
+
+   procedure Print_Folder (Id : Natural; Name : String; Depth : Positive) is
+   begin
+      Put_Line (To_String (Img_Descr.Folder_Pre) & Name);
+      Recursive_Image (Id, Depth);
+      Put_Line (To_String (Img_Descr.Folder_Post));
+   end Print_Folder;
+
+   procedure Print_Object (Content : String) is
+   begin
+      Put_Line
+        (To_String (Img_Descr.Object_Pre)
+         & Content
+         & To_String (Img_Descr.Object_Post));
+   end Print_Object;
 
 end Imager;
