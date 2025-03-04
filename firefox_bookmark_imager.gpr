@@ -2,7 +2,7 @@ with "config/firefox_bookmark_imager_config.gpr";
 
 project Firefox_Bookmark_Imager is
 
-   for Source_Dirs use ("src", "config");
+   for Source_Dirs use ("src/**", "config");
    for Object_Dir use "obj/" & Firefox_Bookmark_Imager_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Exec_Dir use "bin";

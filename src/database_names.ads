@@ -1,4 +1,4 @@
--- Auto generated with gnatcoll_db2ada.
+--  Auto generated with gnatcoll_db2ada.
 
 with GNATCOLL.SQL; use GNATCOLL.SQL;
 package Database_Names is

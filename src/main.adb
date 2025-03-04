@@ -108,14 +108,14 @@ begin
    end if;
 
    Imager.Initialize
-     ((To_Unbounded_String (Arg_Parser.String_Value ("DATABASE")),
-       Arg_Parser.Boolean_Value ("check-syntax"),
-       Arg_Parser.Boolean_Value ("doubles"),
-       Positive (Arg_Parser.Integer_Value ("tree-depth")),
-       To_Unbounded_String (Arg_Parser.String_Value ("folder-pre")),
-       To_Unbounded_String (Arg_Parser.String_Value ("folder-post")),
-       To_Unbounded_String (Arg_Parser.String_Value ("object-pre")),
-       To_Unbounded_String (Arg_Parser.String_Value ("object-post"))));
+     (To_Unbounded_String (Arg_Parser.String_Value ("DATABASE")),
+      Arg_Parser.Boolean_Value ("check-syntax"),
+      Arg_Parser.Boolean_Value ("doubles"),
+      Positive (Arg_Parser.Integer_Value ("tree-depth")),
+      To_Unbounded_String (Arg_Parser.String_Value ("folder-pre")),
+      To_Unbounded_String (Arg_Parser.String_Value ("folder-post")),
+      To_Unbounded_String (Arg_Parser.String_Value ("object-pre")),
+      To_Unbounded_String (Arg_Parser.String_Value ("object-post")));
 
    if Arg_Parser.Boolean_Value ("id-as-root") then
       declare

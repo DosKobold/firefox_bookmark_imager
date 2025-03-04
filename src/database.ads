@@ -1,5 +1,5 @@
--- Auto generated with gnatcoll_db2ada.
--- Manual change: Change name of "Type" into "Type_Value"
+--  Auto generated with gnatcoll_db2ada.
+--  Manual change: Change name of "Type" into "Type_Value"
 
 with GNATCOLL.SQL; use GNATCOLL.SQL;
 pragma Warnings (Off, "no entities of * are referenced");

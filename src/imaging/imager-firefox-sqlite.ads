@@ -26,28 +26,13 @@
 --  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 --  POSSIBILITY OF SUCH DAMAGE.
 
-with Ada.Containers;        use Ada.Containers;
-with Ada.Containers.Ordered_Sets;
-with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with GNATCOLL.SQL.Exec;     use GNATCOLL.SQL.Exec;
 
-package Imager is
-
-   type Image_Description is record
-      Database     : Unbounded_String;
-      Check_Syntax : Boolean;
-      Doubles      : Boolean;
-      Tree_Depth   : Positive;
-      Folder_Pre   : Unbounded_String;
-      Folder_Post  : Unbounded_String;
-      Object_Pre   : Unbounded_String;
-      Object_Post  : Unbounded_String;
-   end record;
+package Imager.Firefox.Sqlite is
 
    --  Inititalizes the Imager
-   procedure Initialize (Given_Descr : Image_Description)
-   with Pre => Length (Given_Descr.Database) > 0, Post => Is_Initialized;
+   procedure Initialize
+   with Post => Is_Initialized;
 
    --  Images the folder onto stdout with the initialized database
    procedure Image (Root_Folder_Title : String)
@@ -66,15 +51,8 @@ package Imager is
 
 private
 
-   package String_Sets is new
-     Ada.Containers.Ordered_Sets (Element_Type => Unbounded_String);
-
-   Img_Descr : Image_Description;
-   Db_Conn   : Database_Connection;
-   Db_Descr  : Database_Description;
-
-   Type_Object : constant Positive := 1;
-   Type_Folder : constant Positive := 2;
+   Db_Conn  : Database_Connection;
+   Db_Descr : Database_Description;
 
    --  Start imaging when there is one found folder. Else panic
    procedure Image_Root_Folder
@@ -87,29 +65,11 @@ private
    --  Checks if the query was successfull and panics if needed
    procedure Check_Query_Success;
 
-   --  Appends the string to the set and panics if needed
-   procedure Check_For_Doubles
-     (Elements : in out String_Sets.Set; Content : String);
-
    --  Prints the Folder and it's content
    procedure Print_Folder (Id : Natural; Name : String; Depth : Positive);
-
-   --  Prints the object
-   procedure Print_Object (Content : String);
-
-   --  Checks if folder contains pre or post markings and panics if needed
-   procedure Check_Folder_Syntax (Name : String);
-
-   --  Checks if object contains pre or post markings and panics if needed
-   procedure Check_Object_Syntax (Name : String);
 
    --  Checks if the imager is initialized
    function Is_Initialized return Boolean
    is (Db_Conn /= null);
 
-   --  Checks if the source string contains the pattern
-   function Contains
-     (Source : String; Pattern : Unbounded_String) return Boolean
-   is (Ada.Strings.Fixed.Count (Source, To_String (Pattern)) > 0);
-
-end Imager;
+end Imager.Firefox.Sqlite;

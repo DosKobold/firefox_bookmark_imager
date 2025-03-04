@@ -26,21 +26,21 @@
 --  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 --  POSSIBILITY OF SUCH DAMAGE.
 
-with Ada.Text_IO;    use Ada.Text_IO;
-with Database;       use Database;
-with Error_Handling; use Error_Handling;
-with GNATCOLL.SQL;   use GNATCOLL.SQL;
+with Database;              use Database;
+with Error_Handling;        use Error_Handling;
+with GNATCOLL.SQL;          use GNATCOLL.SQL;
 with GNATCOLL.SQL.Sqlite;
+with Imager.Description;    use Imager.Description;
+with Imager.Helper;         use Imager.Helper;
 
-package body Imager is
+package body Imager.Firefox.Sqlite is
 
    ----------------
    -- Initialize --
    ----------------
 
-   procedure Initialize (Given_Descr : Image_Description) is
+   procedure Initialize is
    begin
-      Img_Descr := Given_Descr;
       Db_Descr := GNATCOLL.SQL.Sqlite.Setup (To_String (Img_Descr.Database));
       Db_Conn := Db_Descr.Build_Connection;
    end Initialize;
@@ -174,8 +174,9 @@ package body Imager is
                   Check_For_Doubles (Folders, Result.Value (3));
                end if;
 
-               Print_Folder
-                 (Result.Integer_Value (0), Result.Value (3), Current_Depth);
+               Print_Folder_Pre (Result.Value (3));
+               Recursive_Image (Result.Integer_Value (0), Current_Depth);
+               Print_Folder_Post;
 
             when others =>
                Panic
@@ -198,80 +199,15 @@ package body Imager is
       end if;
    end Check_Query_Success;
 
-   -----------------------
-   -- Check_For_Doubles --
-   -----------------------
-
-   procedure Check_For_Doubles
-     (Elements : in out String_Sets.Set; Content : String) is
-   begin
-      begin
-         Elements.Insert (To_Unbounded_String (Content));
-      exception
-         when Constraint_Error =>
-            Panic (Error_Doubled_Elements, "Value: " & Content);
-      end;
-   end Check_For_Doubles;
-
    ------------------
    -- Print_Folder --
    ------------------
 
    procedure Print_Folder (Id : Natural; Name : String; Depth : Positive) is
    begin
-      if Img_Descr.Check_Syntax then
-         Check_Folder_Syntax (Name);
-      end if;
-
-      Put_Line (To_String (Img_Descr.Folder_Pre) & Name);
+      Print_Folder_Pre (Name);
       Recursive_Image (Id, Depth);
-      Put_Line (To_String (Img_Descr.Folder_Post));
+      Print_Folder_Post;
    end Print_Folder;
 
-   ------------------
-   -- Print_Object --
-   ------------------
-
-   procedure Print_Object (Content : String) is
-   begin
-      if Img_Descr.Check_Syntax then
-         Check_Object_Syntax (Content);
-      end if;
-
-      Put_Line
-        (To_String (Img_Descr.Object_Pre)
-         & Content
-         & To_String (Img_Descr.Object_Post));
-   end Print_Object;
-
-   -------------------------
-   -- Check_Folder_Syntax --
-   -------------------------
-
-   procedure Check_Folder_Syntax (Name : String) is
-   begin
-      if (Length (Img_Descr.Folder_Pre) > 0
-          and then Contains (Name, Img_Descr.Folder_Pre))
-        or else (Length (Img_Descr.Folder_Post) > 0
-                 and then Contains (Name, Img_Descr.Folder_Post))
-      then
-         Panic (Error_Syntax_Check, "Element: " & Name);
-      end if;
-   end Check_Folder_Syntax;
-
-   -------------------------
-   -- Check_Object_Syntax --
-   -------------------------
-
-   procedure Check_Object_Syntax (Name : String) is
-   begin
-      if (Length (Img_Descr.Object_Pre) > 0
-          and then Contains (Name, Img_Descr.Object_Pre))
-        or else (Length (Img_Descr.Object_Post) > 0
-                 and then Contains (Name, Img_Descr.Object_Post))
-      then
-         Panic (Error_Syntax_Check, "Element: " & Name);
-      end if;
-   end Check_Object_Syntax;
-
-end Imager;
+end Imager.Firefox.Sqlite;
