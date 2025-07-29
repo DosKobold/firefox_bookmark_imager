@@ -39,12 +39,14 @@ package body Imager.Helper is
    procedure Check_For_Doubles
      (Elements : in out String_Sets.Set; Content : String) is
    begin
-      begin
-         Elements.Insert (To_Unbounded_String (Content));
-      exception
-         when Constraint_Error =>
-            Panic (Error_Doubled_Elements, "Value: " & Content);
-      end;
+      if not Img_Descr.Doubles then
+         begin
+            Elements.Insert (To_Unbounded_String (Content));
+         exception
+            when Constraint_Error =>
+               Panic (Error_Doubled_Elements, "Value: " & Content);
+         end;
+      end if;
    end Check_For_Doubles;
 
    ----------------------
@@ -58,7 +60,6 @@ package body Imager.Helper is
       end if;
 
       Put_Line (To_String (Img_Descr.Folder_Pre) & Name);
-      Put_Line (To_String (Img_Descr.Folder_Post));
    end Print_Folder_Pre;
 
    -----------------------

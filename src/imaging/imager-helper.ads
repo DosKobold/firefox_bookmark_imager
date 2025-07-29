@@ -35,7 +35,8 @@ private package Imager.Helper is
    package String_Sets is new
      Ada.Containers.Ordered_Sets (Element_Type => Unbounded_String);
 
-   --  Appends the string to the set and panics if needed
+   --  Append the string to the set and panics if needed in case doubles are
+   --  disabled
    procedure Check_For_Doubles
      (Elements : in out String_Sets.Set; Content : String);
 

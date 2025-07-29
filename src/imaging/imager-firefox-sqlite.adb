@@ -163,16 +163,12 @@ package body Imager.Firefox.Sqlite is
       while Result.Has_Row loop
          case Result.Integer_Value (1) is
             when Type_Object =>
-               if not Img_Descr.Doubles then
-                  Check_For_Doubles (Objects, Result.Value (4));
-               end if;
+               Check_For_Doubles (Objects, Result.Value (4));
 
                Print_Object (Result.Value (4));
 
             when Type_Folder =>
-               if not Img_Descr.Doubles then
-                  Check_For_Doubles (Folders, Result.Value (3));
-               end if;
+               Check_For_Doubles (Folders, Result.Value (3));
 
                Print_Folder_Pre (Result.Value (3));
                Recursive_Image (Result.Integer_Value (0), Current_Depth);
